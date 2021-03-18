@@ -1,0 +1,42 @@
+<form *ngIf="!userAlreadySubmitted(); else userSubmitted" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <mat-horizontal-stepper #stepper formArrayName="form" [linear]="isLinear" [selectedIndex]="selectedStepIndex">
+        <mat-step [stepControl]="form.controls[i]" [completed]="false" [formGroupName]="i" *ngFor="let customerGroup of getControls(); let i = index" errorMessage="Bitte die Frage beantworten">
+            <ng-template matStepLabel>{{questions[i].question}}</ng-template>
+            <h3>{{questions[i].question}}</h3>
+            <mat-form-field *ngIf="questions[i].type === 'Text'" appearance="outline">
+                <mat-label>Ihre Antwort</mat-label>
+                <textarea matInput placeholder="Ihre Antwort" formControlName="cont" required></textarea>
+                <mat-error *ngIf="getError(i)">Dieses Feld ist erforderlich
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="questions[i].type === 'Choice'" appearance="outline">
+                <mat-label>Ihre Antwort</mat-label>
+                <mat-select formControlName="cont" required>
+                    <mat-option *ngFor="let o of questions[i].options" value={{o}}>{{o}}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="getError(i)">Dieses Feld ist erforderlich
+                </mat-error>
+            </mat-form-field>
+            <!-- MultiChoice -->
+            <!-- <mat-checkbox>Check me!</mat-checkbox> -->
+            <!-- Dokumentation -->
+            <!-- Keine doppelten Einträge von Personen -->
+            <div formGroupName="cont" *ngIf="questions[i].type === 'MultiChoice'">
+                <mat-checkbox *ngFor="let o of questions[i].options" [formControlName]="o" value={{o}}>{{o}}</mat-checkbox>
+                <div class="mat-error-custom"><span *ngIf="getError(i, 'requireOneCheckboxToBeChecked', true)">Mindestens eine
+                        Checkbox muss ausgewählt sein.</span></div>
+            </div>
+            <div class="buttons">
+                <button *ngIf="i !== 0" mat-button type="button" matStepperPrevious>Zurück</button>
+                <button *ngIf="i !== (getControls().length -1)" mat-button type="button" matStepperNext>Weiter</button>
+                <button *ngIf="i === (getControls().length -1)" mat-button type="submit">Abschicken</button>
+            </div>
+        </mat-step>
+    </mat-horizontal-stepper>
+</form>
+<ng-template #userSubmitted>
+    <h1>{{alreadySubmittedMessage}}</h1>
+</ng-template>
+
+<!-- [disabled]="(questions[i].type !== 'Choice')" -->
